@@ -59,6 +59,10 @@ export async function parseCliArgs(
       type: 'string',
       choices: [...OUTPUT_DESTINATIONS] as unknown as readonly string[],
     })
+    .option('audience', {
+      type: 'string',
+      choices: ['all', 'user', 'maintainer'] as const,
+    })
     .option('dry-run', { type: 'boolean' })
     .option('dry-run-json-report', { type: 'boolean' })
     .option('fail-on-llm-error', { type: 'boolean' })
@@ -96,6 +100,7 @@ export async function parseCliArgs(
     instructions: parsed.instructions,
     instructionsFile: parsed['instructions-file'],
     output: parsed.output as OutputDestination | undefined,
+    audience: parsed.audience,
     dryRun: parsed['dry-run'],
     dryRunJsonReport: parsed['dry-run-json-report'],
     failOnLlmError: parsed['fail-on-llm-error'],
