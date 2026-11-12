@@ -14,7 +14,10 @@ import {
   DEFAULT_WHY_MAX_CHARS_PER_PR,
   DEFAULT_WHY_MAX_PRS,
 } from '@/constants/why.js';
-
+import {
+  AUDIENCES,
+  DEFAULT_AUDIENCE,
+} from '@/constants/audience.js';
 /**
  * Runtime validation for CLI options after yargs parsing.
  * WHY: Ensures consistent shapes and supported values across the app.
