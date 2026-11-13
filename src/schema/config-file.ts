@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { PROVIDER_NAMES } from '@/constants/provider.js';
 import { OUTPUT_DESTINATIONS } from '@/constants/delivery.js';
-
+import { AUDIENCES } from '@/constants/audience.js';
 /**
  * Runtime validation for optional JSON config files.
  * WHY: Config files are a public surface, so reject unknown keys early instead
@@ -48,6 +48,10 @@ export const CliConfigFileSchema = z
       .enum(OUTPUT_DESTINATIONS)
       .optional()
       .describe('Changelog delivery destination (pull-request|file|stdout).'),
+    audience: z
+      .enum(AUDIENCES)
+      .optional()
+      .describe('Audience for generated changelog content (all|user).'),   
     dryRun: z
       .boolean()
       .optional()
