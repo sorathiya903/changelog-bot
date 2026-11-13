@@ -57,7 +57,8 @@ Using it in CI? Jump to [GitHub Actions integration](#github-actions-integration
 | `--release-tag`          | Git ref (tag or HEAD) to generate release for            | latest tag or HEAD                     |
 | `--release-name`         | Display name for version (without `v`)                   | derived from tag                       |
 | `--release-body`         | Additional release notes body                            | `""`                                   |
-| `--language`             | Language for generated changelog prose                   | `en`                                   |
+| `--language`             | Language for generated changelog prose                   | `en`    |
+| `--audience`             |    Controls generated changelog content: all (default) or user.             | `all`  |
 | `--instructions`         | Additional changelog writing/grouping instructions       | unset                                  |
 | `--instructions-file`    | Path to a file with additional instructions              | unset                                  |
 | `--output`               | Delivery destination (`pull-request`, `file`, `stdout`)  | `pull-request`                         |
