@@ -300,6 +300,7 @@ Create `changelog-bot.config.json` in the directory where you run the CLI:
 {
   "provider": "gemini",
   "language": "nl",
+  "audience": "user",
   "instructionsFile": ".github/changelog-instructions.md"
 }
 ```
@@ -318,7 +319,7 @@ pnpm dlx @nyaomaru/changelog-bot --config .github/changelog-bot.json --dry-run
 
 Config files use camelCase keys matching the CLI options:
 `repoPath`, `changelogPath`, `baseBranch`, `provider`, `releaseTag`,
-`releaseName`, `releaseBody`, `language`, `instructions`,
+`releaseName`, `releaseBody`, `language`, `audience`, `instructions`,
 `instructionsFile`, `dryRun`, `dryRunJsonReport`, `failOnLlmError`,
 `requireProvider`, `noAi`, `why`, `whyEngine`, `whyMaxPrs`, `whyMaxCharsPerPr`,
 `whyConfidence`, and `whyLabel`. Unknown keys are rejected so typos fail fast.
@@ -604,6 +605,7 @@ precedence are treated as the public compatibility contract.
 | Version label           | `--release-name`                                     | `release-name`             | `release_name`             | `releaseName`, derived from release ref                     |
 | Release notes body      | `--release-body`                                     | `release-body`             | `release_body`             | `releaseBody`, default empty                                |
 | Output language         | `--language`                                         | `language`                 | `language`                 | `language`, default `en`                                    |
+| Changelog Audience    | `—audience`                                                | none | none | `audience`, default `all`; accepts `all` or `user`                                    |
 | Extra instructions      | `--instructions`                                     | `instructions`             | `instructions`             | `instructions`, unset                                       |
 | Instructions file       | `--instructions-file`                                | `instructions-file`        | `instructions_file`        | `instructionsFile`, unset                                   |
 | Output destination      | `--output`                                           | `output`                   | `output`                   | `output`, default `pull-request`                            |
