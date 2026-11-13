@@ -1,3 +1,4 @@
+import type { Audience } from '@/constants/audience.js';
 import type { ProviderRuntimeConfig } from '@/types/config.js';
 import type { CommitLite } from '@/types/commit.js';
 import type { LLMOutput } from '@/types/llm.js';
@@ -59,6 +60,8 @@ export type BuildChangelogLlmOutputParams = {
   requireProvider: boolean;
   /** Fail instead of falling back when a provider generation/classification call fails. */
   failOnLlmError: boolean;
+  /** Audience used to filter generated release changes. */
+  audience?: Audience;
 };
 
 /** Result payload for the changelog LLM output builder. */
