@@ -40,6 +40,11 @@
       "type": "string",
       "minLength": 1
     },
+    "audience": {
+      "description": "Audience for generated changelog content (all|user).",
+      "type": "string",
+      "enum": ["all", "user"]
+    },
     "instructions": {
       "description": "Additional changelog writing/grouping instructions.",
       "type": "string"
