@@ -4,6 +4,7 @@ import { buildReleaseDraft } from '@/utils/release-draft.js';
 import { buildSectionFromRelease } from '@/utils/release-section.js';
 import { reconcileEditorialOutput } from '@/utils/editorial.js';
 import { validateReleaseResult } from '@/utils/release-validation.js';
+import { filterReleaseDraftByAudience } from '@/utils/audience-filter.js';
 import {
   DEFAULT_PR_LABELS,
   PR_TITLE_PREFIX,
@@ -134,9 +135,14 @@ export async function buildOutputFromModelOrFallback(
     }
   }
 
-  // Phase 5: Enforce completeness and empty-release behavior via validateReleaseResult
-  const outcome = validateReleaseResult(activeDraft, draft.sourceChanges);
+// Apply audience filtering after editorial reconciliation.
+activeDraft = filterReleaseDraftByAudience(
+  activeDraft,
+  params.audience,
+);
 
+// Phase 5: Validate the filtered release draft.
+const outcome = validateReleaseResult(activeDraft, draft.sourceChanges);
   // Phase 4: Deterministic renderer is the sole Markdown author for both AI and fallback paths
   const section =
     outcome.kind === 'release'
