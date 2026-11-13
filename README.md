@@ -76,6 +76,33 @@ Using it in CI? Jump to [GitHub Actions integration](#github-actions-integration
 
 ## Examples
 
+### Choose a Changelog audience
+
+Use `—-audience` to control which categories appear in the generated changelog.
+
+
+```
+# Generate a user-facing changelog**
+
+pnpm dlx @nyaomaru/changelog-bot \
+  --release-tag HEAD \
+  --release-name 1.2.3 \
+  --audience user \
+  --dry-run
+```
+
+The available audiences are:
+
+| Audience | Included Categories |
+| :--- | :--- |
+| **All (Default)** | All existing categories, including Docs, Test, Chore, and Reverted |
+| **User** | Breaking Changes, Added, Fixed, and Changed |
+
+
+The `user` audience excludes maintenance-oriented entries such as documentation, tests, chores, and reverted changes. Additional release-note sections are not affected.
+
+Audience filtering does not change the output destination. Use `--output` independently to choose between a pull request, a local file, or stdout.
+
 ### Dry-run for latest release
 
 ```
