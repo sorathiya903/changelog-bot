@@ -605,7 +605,7 @@ precedence are treated as the public compatibility contract.
 | Version label           | `--release-name`                                     | `release-name`             | `release_name`             | `releaseName`, derived from release ref                     |
 | Release notes body      | `--release-body`                                     | `release-body`             | `release_body`             | `releaseBody`, default empty                                |
 | Output language         | `--language`                                         | `language`                 | `language`                 | `language`, default `en`                                    |
-| Changelog Audience    | `—audience`                                                | none | none | `audience`, default `all`; accepts `all` or `user`                                    |
+| Changelog audience | `--audience` | none | none | `audience`, default `all`; accepts `all` or `user` |
 | Extra instructions      | `--instructions`                                     | `instructions`             | `instructions`             | `instructions`, unset                                       |
 | Instructions file       | `--instructions-file`                                | `instructions-file`        | `instructions_file`        | `instructionsFile`, unset                                   |
 | Output destination      | `--output`                                           | `output`                   | `output`                   | `output`, default `pull-request`                            |
