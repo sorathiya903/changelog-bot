@@ -1,3 +1,3 @@
-export const AUDIENCES = ['all', 'user', 'maintainer'] as const;
+export const AUDIENCES = ['all', 'user'] as const;
 
 export const DEFAULT_AUDIENCE = 'all';
