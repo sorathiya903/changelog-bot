@@ -12,8 +12,7 @@ import {
 import type { CategoryAssignments } from '@/types/changelog.js';
 import type { ReleaseDraft } from '@/types/release.js';
 
-const USER_VISIBLE_CATEGORIES = new Set([
-  SECTION_BREAKING_CHANGES,
+const USER_VISIBLE_CATEGORIES = new Set<string>([  SECTION_BREAKING_CHANGES,
   SECTION_ADDED,
   SECTION_FIXED,
   SECTION_CHANGED,
