@@ -1,6 +1,7 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { z } from 'zod';
+import { AUDIENCES } from '@/constants/audience.js';
 
 import { CliOptionsSchema, type CliOptions } from '@/schema/cli.js';
 import { PROVIDER_NAMES, PROVIDER_OPENAI } from '@/constants/provider.js';
@@ -61,7 +62,7 @@ export async function parseCliArgs(
     })
     .option('audience', {
       type: 'string',
-      choices: ['all', 'user', 'maintainer'] as const,
+      choices: [...AUDIENCES],
     })
     .option('dry-run', { type: 'boolean' })
     .option('dry-run-json-report', { type: 'boolean' })
