@@ -71,6 +71,7 @@ export async function executeChangelogRun(params: {
     prevRef,
     releaseBody,
     language: cli.language,
+    audience: cli.audience,
     customInstructions,
     existingChangelog,
     commitList,
