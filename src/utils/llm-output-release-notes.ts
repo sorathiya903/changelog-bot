@@ -39,6 +39,7 @@ import type {
 } from '@/types/release.js';
 import type { CategoryAssignments } from '@/types/changelog.js';
 import { validateReleaseResult } from '@/utils/release-validation.js';
+import { filterReleaseDraftByAudience } from '@/utils/audience-filter.js';
 
 /**
  * Fill missing PR numbers/URLs/authors for release note items when possible.
@@ -234,9 +235,14 @@ export async function buildOutputFromReleaseNotes(
     }
   }
 
-  // Phase 5: Enforce completeness and empty-release behavior via validateReleaseResult
-  const outcome = validateReleaseResult(activeDraft, sourceChanges);
+// Apply audience filtering after classification is complete.
+activeDraft = filterReleaseDraftByAudience(
+  activeDraft,
+  params.audience,
+);
 
+// Phase 5: Validate the filtered release draft.
+const outcome = validateReleaseResult(activeDraft, sourceChanges);
   const section =
     outcome.kind === 'release'
       ? buildSectionFromRelease({
