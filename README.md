@@ -57,8 +57,8 @@ Using it in CI? Jump to [GitHub Actions integration](#github-actions-integration
 | `--release-tag`          | Git ref (tag or HEAD) to generate release for            | latest tag or HEAD                     |
 | `--release-name`         | Display name for version (without `v`)                   | derived from tag                       |
 | `--release-body`         | Additional release notes body                            | `""`                                   |
-| `--language`             | Language for generated changelog prose                   | `en`    |
-| `--audience`             |    Controls generated changelog content: all (default) or user.             | `all`  |
+| `--language`             | Language for generated changelog prose                   | `en`                                    |
+| `--audience`             | Controls generated changelog content: `all` or `user`    | `all`                                   |
 | `--instructions`         | Additional changelog writing/grouping instructions       | unset                                  |
 | `--instructions-file`    | Path to a file with additional instructions              | unset                                  |
 | `--output`               | Delivery destination (`pull-request`, `file`, `stdout`)  | `pull-request`                         |
@@ -605,7 +605,7 @@ precedence are treated as the public compatibility contract.
 | Version label           | `--release-name`                                     | `release-name`             | `release_name`             | `releaseName`, derived from release ref                     |
 | Release notes body      | `--release-body`                                     | `release-body`             | `release_body`             | `releaseBody`, default empty                                |
 | Output language         | `--language`                                         | `language`                 | `language`                 | `language`, default `en`                                    |
-| Changelog audience | `--audience` | none | none | `audience`, default `all`; accepts `all` or `user` |
+| Changelog audience      | `--audience`                                         | none                       | none                       | `audience`, default `all`; accepts `all` or `user`              |
 | Extra instructions      | `--instructions`                                     | `instructions`             | `instructions`             | `instructions`, unset                                       |
 | Instructions file       | `--instructions-file`                                | `instructions-file`        | `instructions_file`        | `instructionsFile`, unset                                   |
 | Output destination      | `--output`                                           | `output`                   | `output`                   | `output`, default `pull-request`                            |
