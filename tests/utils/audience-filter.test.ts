@@ -1,5 +1,5 @@
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from '@jest/globals';
 
 import {
   SECTION_ADDED,
@@ -10,13 +10,10 @@ import { filterReleaseDraftByAudience } from '@/utils/audience-filter.js';
 import type { ReleaseChange, ReleaseDraft } from '@/types/release.js';
 import type { CategoryAssignments } from '@/types/changelog.js';
 
-function createChange(
-  id: ReleaseChange['id'],
-  title = 'Example change',
-): ReleaseChange {
+function createChange(id: ReleaseChange['id']): ReleaseChange {
   return {
     id,
-    title,
+    title: 'Example change',
     origin: {
       kind: 'pull-request',
       number: 1,
@@ -39,7 +36,7 @@ function createDraft(
 }
 
 describe('filterReleaseDraftByAudience', () => {
-  it('rejects a missing category assignment before filtering', () => {
+  test('rejects a missing category assignment before filtering', () => {
     const change = createChange('pr:1');
     const draft = createDraft([change], {} as CategoryAssignments);
 
@@ -48,7 +45,7 @@ describe('filterReleaseDraftByAudience', () => {
     );
   });
 
-  it('rejects an invalid category assignment before filtering', () => {
+  test('rejects an invalid category assignment before filtering', () => {
     const change = createChange('pr:1');
     const draft = createDraft([change], {
       [change.id]: 'Invalid Category',
@@ -59,7 +56,7 @@ describe('filterReleaseDraftByAudience', () => {
     );
   });
 
-  it('rejects assignments for unknown change IDs before filtering', () => {
+  test('rejects assignments for unknown change IDs before filtering', () => {
     const change = createChange('pr:1');
     const draft = createDraft([change], {
       [change.id]: SECTION_ADDED,
