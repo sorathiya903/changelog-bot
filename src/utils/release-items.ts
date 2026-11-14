@@ -10,6 +10,15 @@ import type {
 import { detectPrSubChangesFromCommits } from '@/utils/sub-changes.js';
 import { stripConventionalPrefix } from '@/utils/title-normalize.js';
 
+function findPullRequestWithTitle(
+  commitSha: string,
+  pullRequestsBySha: Readonly<Record<string, readonly PullRef[]>>,
+): PullRef | undefined {
+  return pullRequestsBySha[commitSha]?.find((candidate) =>
+    candidate.title?.trim(),
+  );
+}
+
 /**
  * Build a stable release-change ID from its source identity.
  * @param origin Source record for the release change.
@@ -208,9 +217,7 @@ export function buildReleaseItemsFromPullRequests(
     { pullRequest: PullRef; commits: CommitLite[] }
   >();
   for (const commit of commits) {
-    const pullRequest = pullRequestsBySha[commit.sha]?.find((candidate) =>
-      candidate.title?.trim(),
-    );
+    const pullRequest = findPullRequestWithTitle(commit.sha, pullRequestsBySha);
     if (pullRequest?.title) {
       let entry = commitsByPrNumber.get(pullRequest.number);
       if (!entry) {
@@ -226,9 +233,7 @@ export function buildReleaseItemsFromPullRequests(
   let foundPullRequest = false;
 
   for (const commit of commits) {
-    const pullRequest = pullRequestsBySha[commit.sha]?.find((candidate) =>
-      candidate.title?.trim(),
-    );
+    const pullRequest = findPullRequestWithTitle(commit.sha, pullRequestsBySha);
     if (!pullRequest?.title) {
       const origin: ReleaseChangeOrigin = {
         kind: 'commit',
@@ -340,9 +345,7 @@ export function expandReleaseChangesWithSubChanges(
   // Group commits by pull request number
   const commitsByPrNumber = new Map<number, CommitLite[]>();
   for (const commit of commits) {
-    const pullRequest = pullRequestsBySha[commit.sha]?.find((candidate) =>
-      candidate.title?.trim(),
-    );
+    const pullRequest = findPullRequestWithTitle(commit.sha, pullRequestsBySha);
     if (pullRequest?.number) {
       let list = commitsByPrNumber.get(pullRequest.number);
       if (!list) {

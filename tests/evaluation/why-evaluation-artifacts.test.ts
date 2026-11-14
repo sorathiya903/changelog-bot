@@ -68,10 +68,21 @@ const SAMPLE_ARTIFACT: WhyEvaluationArtifact = {
         precision: 1,
         recall: 1,
         f1: 1,
+        decisionTruePositives: 1,
+        decisionPrecision: 1,
+        decisionRecall: 1,
+        decisionF1: 1,
         exactCandidatePreservations: 1,
         exactCandidatePreservationRate: 1,
         unexpectedSelections: 0,
         duplicateSelections: 0,
+        wrongCandidateSelections: 0,
+        unanchoredSelections: 0,
+        wrongChangeAcceptances: 0,
+        wrongChangeRejections: 1,
+        wrongChangeAcceptanceRate: 0,
+        missingReasonRejections: 1,
+        missingReasonRejectionRate: 1,
         outcomes: [],
       },
       confidence: {
@@ -192,7 +203,10 @@ describe('generateEvaluationMarkdownSummary', () => {
     expect(markdown).toContain('- **Commit SHA**: `abc1234567890`');
     expect(markdown).toContain('- **Corpus Revision**: `rev123456789`');
     expect(markdown).toContain(
-      '| **jev** | `completed` | `jev-latest` | `jev-1.0-prod` |',
+      '| Engine | Status | Requested Model | Served Model | Latency (mean / p95) | Tokens (in / out) | Precision | Recall | F1 | Wrong-Change Accept | Missing-Reason Reject | Exact Preservation | Retries / Throttled |',
+    );
+    expect(markdown).toContain(
+      '| **jev** | `completed` | `jev-latest` | `jev-1.0-prod` | 120 ms / 140 ms | 50 / 10 | 100.0% | 100.0% | 100.0% | 0.0% | 100.0% | 100.0% | 1 / yes |',
     );
     expect(markdown).toContain(
       '| **openai** | `failed` | `gpt-4o` | `gpt-4o-2024-08-06` |',
@@ -204,6 +218,27 @@ describe('generateEvaluationMarkdownSummary', () => {
     expect(markdown).toContain('## Diagnostics & Failures');
     expect(markdown).toContain('### openai Failures');
     expect(markdown).toContain('Run 2 (300ms): 500 Internal Server Error');
+  });
+
+  test('formats null counterfactual rates as "-" in engine comparison table', () => {
+    const artifactWithNullRates: WhyEvaluationArtifact = {
+      ...SAMPLE_ARTIFACT,
+      engines: [
+        {
+          ...SAMPLE_ARTIFACT.engines[0]!,
+          metrics: {
+            ...SAMPLE_ARTIFACT.engines[0]!.metrics!,
+            wrongChangeAcceptanceRate: null,
+            missingReasonRejectionRate: null,
+          },
+        },
+      ],
+    };
+
+    const markdown = generateEvaluationMarkdownSummary(artifactWithNullRates);
+    expect(markdown).toContain(
+      '| **jev** | `completed` | `jev-latest` | `jev-1.0-prod` | 120 ms / 140 ms | 50 / 10 | 100.0% | 100.0% | 100.0% | - | - | 100.0% | 1 / yes |',
+    );
   });
 });
 

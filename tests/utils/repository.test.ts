@@ -21,6 +21,42 @@ describe('utils/repository.getRepoFullName', () => {
     expect(name).toBe('acme/tools');
   });
 
+  describe.each(['REPO_FULL_NAME', 'GITHUB_REPOSITORY'] as const)(
+    '%s',
+    (envName) => {
+      test.each(['Owner-Name/repo_name.js', 'acme/repo.git'])(
+        'preserves valid repository name %j',
+        (repoFullName) => {
+          const config = loadAppConfig({ [envName]: repoFullName });
+
+          expect(getRepoFullName(config)).toBe(repoFullName);
+        },
+      );
+
+      test.each([
+        '',
+        'owner',
+        '/repo',
+        'owner/',
+        '/',
+        '//',
+        'owner/repo/extra',
+        'owner//repo',
+        ' /repo',
+        'owner/ \t',
+        ' owner/repo',
+        'owner/repo\n',
+      ])('rejects malformed repository name %j', (repoFullName) => {
+        const config = loadAppConfig({ [envName]: repoFullName });
+
+        expect(() => getRepoFullName(config)).toThrow(ConfigError);
+        expect(() => getRepoFullName(config)).toThrow(
+          'REPO_FULL_NAME or GITHUB_REPOSITORY is required (owner/repo).',
+        );
+      });
+    },
+  );
+
   test('throws usage error when neither env is set or invalid', () => {
     expect(() => getRepoFullName(loadAppConfig({}))).toThrow(ConfigError);
 

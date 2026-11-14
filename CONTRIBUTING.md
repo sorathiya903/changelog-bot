@@ -38,6 +38,22 @@ pnpm test
 
 Note: AI keys are optional. Without them, the CLI generates a deterministic fallback and annotates the PR body with the reason. `GITHUB_TOKEN` is only required when actually creating a PR (not for `--dry-run`).
 
+## 🙋 Claiming an issue
+
+Some issues are already being worked on. Before you start, check who has it.
+
+1. **Check the assignees.** If an issue is assigned, it is taken. Pick another one.
+2. **Read the comments.** Someone may have offered to work on it without being assigned yet. If you find an offer, ask that person in the issue whether they are still working on it, and wait for their answer before you start. If they are still on it, pick another issue or offer to help with theirs.
+3. **Ask for it.** Leave a short comment saying you would like to take it and what you plan to do. A maintainer assigns it to you.
+4. **Wait for a confirmation** before starting. If nobody answers within a couple of days, comment again.
+5. **Open a pull request** that links the issue, for example `Closes #123`.
+
+An example request:
+
+> I would like to take this one. I plan to add a "Claiming an issue" section to `CONTRIBUTING.md` covering the points in the description, and I will open a pull request for it.
+
+If you are unsure whether an issue suits you, ask in the issue. If you start and cannot finish, leave a comment so the next person knows.
+
 ## Workflow
 
 1. Fork this repository

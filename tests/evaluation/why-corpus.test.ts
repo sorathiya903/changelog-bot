@@ -14,7 +14,7 @@ import { evaluateJevConfidence } from '@/evaluation/why-evaluation.js';
 import type { WhySelectionDiagnostic } from '@/types/why.js';
 
 describe('WHY Evaluation Corpus Calibration (#205)', () => {
-  test('loads exactly 50 benchmark cases from tests/fixtures/why-corpus.json', () => {
+  test('loads 70 benchmark cases (50 baseline + 20 counterfactual variants) from tests/fixtures/why-corpus.json', () => {
     const fixturePath = path.resolve(
       process.cwd(),
       'tests/fixtures/why-corpus.json',
@@ -22,8 +22,8 @@ describe('WHY Evaluation Corpus Calibration (#205)', () => {
     expect(fs.existsSync(fixturePath)).toBe(true);
 
     const corpus = loadWhyEvaluationCorpus(fixturePath);
-    expect(corpus).toHaveLength(50);
-    expect(WHY_EVALUATION_CORPUS).toHaveLength(50);
+    expect(corpus).toHaveLength(70);
+    expect(WHY_EVALUATION_CORPUS).toHaveLength(70);
   });
 
   test('enforces unique IDs and unique PR numbers across all cases', () => {
@@ -169,5 +169,67 @@ describe('WHY Evaluation Corpus Calibration (#205)', () => {
     expect(() => loadWhyEvaluationCorpus('/non/existent/path.json')).toThrow(
       /Failed to load WHY evaluation corpus/,
     );
+  });
+});
+
+describe('Counterfactual WHY Case Families (#237)', () => {
+  test('organizes 10 balanced counterfactual families (30 cases) with fixed change context and unique PR numbers', () => {
+    const familyCases = WHY_EVALUATION_CORPUS.filter(
+      (evaluationCase) => evaluationCase.familyId !== undefined,
+    );
+    expect(familyCases).toHaveLength(30);
+
+    const families = new Map<string, typeof familyCases>();
+    for (const evaluationCase of familyCases) {
+      const familyId = evaluationCase.familyId!;
+      const group = families.get(familyId) ?? [];
+      group.push(evaluationCase);
+      families.set(familyId, group);
+    }
+
+    expect(families.size).toBe(10);
+
+    for (const [familyId, group] of families.entries()) {
+      expect(group.length).toBeGreaterThanOrEqual(3);
+
+      const anchors = group.filter(
+        (evaluationCase) =>
+          evaluationCase.counterfactualRole === 'anchor-positive',
+      );
+      const unrelated = group.filter(
+        (evaluationCase) =>
+          evaluationCase.counterfactualRole === 'unrelated-rationale',
+      );
+      const missingReason = group.filter(
+        (evaluationCase) =>
+          evaluationCase.counterfactualRole === 'missing-reason',
+      );
+
+      expect(anchors).toHaveLength(1);
+      expect(unrelated.length).toBeGreaterThanOrEqual(1);
+      expect(missingReason.length).toBeGreaterThanOrEqual(1);
+
+      const anchor = anchors[0]!;
+      expect(anchor.expectedSelectedCandidateIndex).not.toBeNull();
+
+      for (const negativeVariant of [...unrelated, ...missingReason]) {
+        expect(negativeVariant.expectedSelectedCandidateIndex).toBeNull();
+        // Keep the change/title and non-rationale inputs fixed while varying only the rationale
+        expect(negativeVariant.item.title).toBe(anchor.item.title);
+        expect(negativeVariant.item.itemText).toBe(anchor.item.itemText);
+        expect(negativeVariant.item.sectionTitle).toBe(
+          anchor.item.sectionTitle,
+        );
+        expect(negativeVariant.item.trustScore).toBe(anchor.item.trustScore);
+        expect(negativeVariant.item.trustBucket).toBe(anchor.item.trustBucket);
+        expect(negativeVariant.item.requiresHighConfidence).toBe(
+          anchor.item.requiresHighConfidence,
+        );
+        expect(negativeVariant.item.candidates).toHaveLength(
+          anchor.item.candidates.length,
+        );
+        expect(negativeVariant.familyId).toBe(familyId);
+      }
+    }
   });
 });

@@ -3,6 +3,10 @@ import type { ReleaseChangeId } from '@/types/release.js';
 /** Confidence levels accepted from the WHY extraction model. */
 export type WhyConfidence = 'low' | 'medium' | 'high';
 
+/** Role played by an evaluation case within a counterfactual family. */
+export type WhyCounterfactualRole =
+  'anchor-positive' | 'unrelated-rationale' | 'missing-reason';
+
 /** Implementation selected for optional WHY enrichment. */
 export type WhyEngine = 'llm' | 'jev';
 

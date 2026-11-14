@@ -183,6 +183,51 @@ export function classifyGithubError(
   };
 }
 
+/** Context-specific messages paired with a fallback reason subject. */
+type MetadataFallbackReasonMessages = {
+  /** Message used when the lookup target does not exist. */
+  notFound: string;
+  /** Message used when the lookup returns an unexpected payload shape. */
+  invalidResponse: string;
+  /** Message used when the lookup fails at the transport layer. */
+  networkError: string;
+};
+
+/**
+ * Format a metadata fallback reason for one lookup subject.
+ * WHY: Every metadata lookup reports the same five failure statuses; only the
+ * subject and three of the messages vary by lookup kind, while the
+ * unauthenticated and rate-limited messages are shared verbatim.
+ * @param subject Lookup subject label (e.g. "Skipped PR #123").
+ * @param failure Typed failure detail.
+ * @param messages Context-specific messages for the varying statuses.
+ * @returns Formatted reason string.
+ */
+function formatMetadataFallbackReasonFor(
+  subject: string,
+  failure: MetadataLookupFailure,
+  messages: MetadataFallbackReasonMessages,
+): string {
+  switch (failure.status) {
+    case 'not-found':
+      return `${subject}: ${messages.notFound}`;
+    case 'unauthenticated':
+      return `${subject}: GitHub authentication required or token invalid`;
+    case 'rate-limited':
+      return `${subject}: GitHub API rate limit reached`;
+    case 'invalid-response':
+      return `${subject}: ${messages.invalidResponse}`;
+    case 'network-error':
+      return `${subject}: ${messages.networkError}`;
+    default: {
+      const exhaustiveStatus: never = failure.status;
+      throw new Error(
+        `Unsupported metadata lookup failure status: ${String(exhaustiveStatus)}`,
+      );
+    }
+  }
+}
+
 /**
  * Format a human-readable fallback reason for WHY extraction.
  * @param prNumber PR number associated with the lookup.
@@ -193,24 +238,11 @@ export function formatMetadataFallbackReason(
   prNumber: number,
   failure: MetadataLookupFailure,
 ): string {
-  switch (failure.status) {
-    case 'not-found':
-      return `Skipped PR #${prNumber}: PR not found (404)`;
-    case 'unauthenticated':
-      return `Skipped PR #${prNumber}: GitHub authentication required or token invalid`;
-    case 'rate-limited':
-      return `Skipped PR #${prNumber}: GitHub API rate limit reached`;
-    case 'invalid-response':
-      return `Skipped PR #${prNumber}: invalid PR metadata received from GitHub`;
-    case 'network-error':
-      return `Skipped PR #${prNumber}: network error fetching PR metadata`;
-    default: {
-      const exhaustiveStatus: never = failure.status;
-      throw new Error(
-        `Unsupported metadata lookup failure status: ${String(exhaustiveStatus)}`,
-      );
-    }
-  }
+  return formatMetadataFallbackReasonFor(`Skipped PR #${prNumber}`, failure, {
+    notFound: 'PR not found (404)',
+    invalidResponse: 'invalid PR metadata received from GitHub',
+    networkError: 'network error fetching PR metadata',
+  });
 }
 
 /**
@@ -224,24 +256,11 @@ export function formatCommitMetadataFallbackReason(
   failure: MetadataLookupFailure,
 ): string {
   const shortSha = commitSha.slice(0, SHORT_COMMIT_SHA_LENGTH);
-  switch (failure.status) {
-    case 'not-found':
-      return `Commit ${shortSha}: commit pulls not found (404)`;
-    case 'unauthenticated':
-      return `Commit ${shortSha}: GitHub authentication required or token invalid`;
-    case 'rate-limited':
-      return `Commit ${shortSha}: GitHub API rate limit reached`;
-    case 'invalid-response':
-      return `Commit ${shortSha}: invalid commit PR metadata received from GitHub`;
-    case 'network-error':
-      return `Commit ${shortSha}: network error fetching commit PR metadata`;
-    default: {
-      const exhaustiveStatus: never = failure.status;
-      throw new Error(
-        `Unsupported metadata lookup failure status: ${String(exhaustiveStatus)}`,
-      );
-    }
-  }
+  return formatMetadataFallbackReasonFor(`Commit ${shortSha}`, failure, {
+    notFound: 'commit pulls not found (404)',
+    invalidResponse: 'invalid commit PR metadata received from GitHub',
+    networkError: 'network error fetching commit PR metadata',
+  });
 }
 
 /**
@@ -254,24 +273,11 @@ export function formatReleaseMetadataFallbackReason(
   releaseTag: string,
   failure: MetadataLookupFailure,
 ): string {
-  switch (failure.status) {
-    case 'not-found':
-      return `Release ${releaseTag}: release notes not found (404)`;
-    case 'unauthenticated':
-      return `Release ${releaseTag}: GitHub authentication required or token invalid`;
-    case 'rate-limited':
-      return `Release ${releaseTag}: GitHub API rate limit reached`;
-    case 'invalid-response':
-      return `Release ${releaseTag}: invalid release notes metadata received from GitHub`;
-    case 'network-error':
-      return `Release ${releaseTag}: network error fetching release notes`;
-    default: {
-      const exhaustiveStatus: never = failure.status;
-      throw new Error(
-        `Unsupported metadata lookup failure status: ${String(exhaustiveStatus)}`,
-      );
-    }
-  }
+  return formatMetadataFallbackReasonFor(`Release ${releaseTag}`, failure, {
+    notFound: 'release notes not found (404)',
+    invalidResponse: 'invalid release notes metadata received from GitHub',
+    networkError: 'network error fetching release notes',
+  });
 }
 
 /**
@@ -284,24 +290,11 @@ export function formatBranchMetadataFallbackReason(
   branchName: string,
   failure: MetadataLookupFailure,
 ): string {
-  switch (failure.status) {
-    case 'not-found':
-      return `Branch ${branchName}: branch pull requests not found (404)`;
-    case 'unauthenticated':
-      return `Branch ${branchName}: GitHub authentication required or token invalid`;
-    case 'rate-limited':
-      return `Branch ${branchName}: GitHub API rate limit reached`;
-    case 'invalid-response':
-      return `Branch ${branchName}: invalid branch PR metadata received from GitHub`;
-    case 'network-error':
-      return `Branch ${branchName}: network error fetching branch pull requests`;
-    default: {
-      const exhaustiveStatus: never = failure.status;
-      throw new Error(
-        `Unsupported metadata lookup failure status: ${String(exhaustiveStatus)}`,
-      );
-    }
-  }
+  return formatMetadataFallbackReasonFor(`Branch ${branchName}`, failure, {
+    notFound: 'branch pull requests not found (404)',
+    invalidResponse: 'invalid branch PR metadata received from GitHub',
+    networkError: 'network error fetching branch pull requests',
+  });
 }
 
 /**
@@ -314,22 +307,13 @@ export function formatIssueMetadataFallbackReason(
   issueNumber: number,
   failure: MetadataLookupFailure,
 ): string {
-  switch (failure.status) {
-    case 'not-found':
-      return `Skipped Issue #${issueNumber}: issue not found (404)`;
-    case 'unauthenticated':
-      return `Skipped Issue #${issueNumber}: GitHub authentication required or token invalid`;
-    case 'rate-limited':
-      return `Skipped Issue #${issueNumber}: GitHub API rate limit reached`;
-    case 'invalid-response':
-      return `Skipped Issue #${issueNumber}: invalid issue metadata received from GitHub`;
-    case 'network-error':
-      return `Skipped Issue #${issueNumber}: network error fetching issue metadata`;
-    default: {
-      const exhaustiveStatus: never = failure.status;
-      throw new Error(
-        `Unsupported metadata lookup failure status: ${String(exhaustiveStatus)}`,
-      );
-    }
-  }
+  return formatMetadataFallbackReasonFor(
+    `Skipped Issue #${issueNumber}`,
+    failure,
+    {
+      notFound: 'issue not found (404)',
+      invalidResponse: 'invalid issue metadata received from GitHub',
+      networkError: 'network error fetching issue metadata',
+    },
+  );
 }

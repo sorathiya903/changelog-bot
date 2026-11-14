@@ -91,6 +91,26 @@ export function hasSection(content: string, version: string): boolean {
 }
 
 /**
+ * Build the regular expression matching one version section, from its
+ * heading line until the next version heading or end of content.
+ * @param version Version (no leading "v").
+ * @param flags RegExp flags; include "g" to match every occurrence.
+ * @returns RegExp matching a single version section per match.
+ */
+// WHY: The heading line is consumed to avoid zero-width matches that could
+// repeatedly match the same position; the body is non-greedy until the next
+// heading or EOF. Shared by single-section replacement and global removal,
+// which differ only in the flags they pass.
+function buildVersionSectionRegExp(version: string, flags: string): RegExp {
+  return new RegExp(
+    `^##\\s*\\[v${escapeRegExp(
+      version,
+    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|(?![\\s\\S]))`,
+    flags,
+  );
+}
+
+/**
  * Replace a specific version section with new content.
  * Section is matched from the heading line until the next version heading or end.
  * @param content Changelog text to modify.
@@ -103,14 +123,7 @@ export function replaceSection(
   version: string,
   newSection: string,
 ): string {
-  // WHY: Consume the heading line to avoid zero-width matches that could
-  // repeatedly match the same position. Non-greedy until next heading or EOF.
-  const regExp = new RegExp(
-    `^##\\s*\\[v${escapeRegExp(
-      version,
-    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|(?![\\s\\S]))`,
-    'm',
-  );
+  const regExp = buildVersionSectionRegExp(version, 'm');
   if (!regExp.test(content)) return content;
   return content.replace(regExp, newSection.trim());
 }
@@ -123,14 +136,9 @@ export function replaceSection(
  * @returns Content with all matching sections removed and spacing normalized.
  */
 export function removeAllSections(content: string, version: string): string {
-  // WHY: Global removal with non-greedy section capture until the next heading
-  // or EOF; also collapses runs of blank lines afterwards for cleanliness.
-  const regExp = new RegExp(
-    `^##\\s*\\[v${escapeRegExp(
-      version,
-    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|(?![\\s\\S]))`,
-    'gm',
-  );
+  // WHY: Global variant of the shared section match; also collapses runs of
+  // blank lines afterwards for cleanliness.
+  const regExp = buildVersionSectionRegExp(version, 'gm');
   return content
     .replace(regExp, '')
     .replace(/\n{3,}/g, '\n\n')

@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
 import {
   createMetadataDiagnostics,
   mergeMetadataDiagnostics,
@@ -84,6 +84,45 @@ describe('metadata-diagnostics', () => {
         'Lookup failed with reason: not-found',
       ]);
     });
+
+    test('skips an empty fallback reason while preserving failure counts', () => {
+      const diagnostics = createMetadataDiagnostics();
+      const rateLimitedResult: MetadataLookupResult<string> = {
+        status: 'rate-limited',
+        message: 'API rate limit exceeded',
+      };
+
+      recordMetadataLookupOutcome(diagnostics, rateLimitedResult, '');
+
+      expect(diagnostics.totalLookups).toBe(1);
+      expect(diagnostics.successfulLookups).toBe(0);
+      expect(diagnostics.degradedLookups).toBe(1);
+      expect(diagnostics.failureCounts['rate-limited']).toBe(1);
+      expect(diagnostics.fallbackReasons).toEqual([]);
+    });
+
+    test('skips an empty formatter result while preserving failure counts', () => {
+      const diagnostics = createMetadataDiagnostics();
+      const rateLimitedResult: MetadataLookupResult<string> = {
+        status: 'rate-limited',
+        message: 'API rate limit exceeded',
+      };
+      const formatFallbackReason = jest.fn(() => '');
+
+      recordMetadataLookupOutcome(
+        diagnostics,
+        rateLimitedResult,
+        formatFallbackReason,
+      );
+
+      expect(formatFallbackReason).toHaveBeenCalledTimes(1);
+      expect(formatFallbackReason).toHaveBeenCalledWith('rate-limited');
+      expect(diagnostics.totalLookups).toBe(1);
+      expect(diagnostics.successfulLookups).toBe(0);
+      expect(diagnostics.degradedLookups).toBe(1);
+      expect(diagnostics.failureCounts['rate-limited']).toBe(1);
+      expect(diagnostics.fallbackReasons).toEqual([]);
+    });
   });
 
   describe('mergeMetadataDiagnostics', () => {
@@ -114,6 +153,30 @@ describe('metadata-diagnostics', () => {
         'Rate limit exceeded',
         'Release tag not found',
       ]);
+    });
+
+    test('preserves and deduplicates existing empty reasons in encounter order', () => {
+      const first = createMetadataDiagnostics();
+      first.totalLookups = 2;
+      first.successfulLookups = 1;
+      first.degradedLookups = 1;
+      first.failureCounts['rate-limited'] = 1;
+      first.fallbackReasons.push('before', '', 'middle', '');
+
+      const second = createMetadataDiagnostics();
+      second.totalLookups = 3;
+      second.successfulLookups = 1;
+      second.degradedLookups = 2;
+      second.failureCounts['rate-limited'] = 2;
+      second.fallbackReasons.push('', 'after', 'middle');
+
+      const merged = mergeMetadataDiagnostics(first, second);
+
+      expect(merged.totalLookups).toBe(5);
+      expect(merged.successfulLookups).toBe(2);
+      expect(merged.degradedLookups).toBe(3);
+      expect(merged.failureCounts['rate-limited']).toBe(3);
+      expect(merged.fallbackReasons).toEqual(['before', '', 'middle', 'after']);
     });
   });
 });

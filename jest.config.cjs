@@ -16,7 +16,8 @@ module.exports = {
     '^@/(.*)\\.js$': '<rootDir>/src/$1.ts',
     '^@/(.*)\\.ts$': '<rootDir>/src/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
-    // Allow ESM-style relative imports with .ts to resolve TS
+    // Allow ESM-style relative imports with .js or .ts to resolve TS
+    '^(\\.{1,2}/.*)\\.js$': '$1',
     '^(\\.{1,2}/.*)\\.ts$': '$1',
   },
   extensionsToTreatAsEsm: ['.ts'],

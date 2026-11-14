@@ -14,7 +14,9 @@
         "Jev is well suited to confidence-aware candidate selection, but it cannot generate the free-form WHY prose expected by the existing provider contract. Keeping it as a dedicated WHY engine lets us evaluate its decision quality without changing changelog generation or weakening the evidence requirement."
       ]
     },
-    "expectedSelectedCandidateIndex": 0
+    "expectedSelectedCandidateIndex": 0,
+    "familyId": "family-pr-203",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "pr-185-description-outcome",
@@ -32,7 +34,9 @@
         "This simplifies the main orchestration flow, runs independent GitHub lookups concurrently, and adds coverage for WHY enrichment finalization."
       ]
     },
-    "expectedSelectedCandidateIndex": 1
+    "expectedSelectedCandidateIndex": 1,
+    "familyId": "family-pr-185",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "pr-166-prevents-false-positives",
@@ -192,7 +196,9 @@
         "Keep changelog PR creation successful when label application is denied because the workflow lacks issues: write permission."
       ]
     },
-    "expectedSelectedCandidateIndex": 0
+    "expectedSelectedCandidateIndex": 0,
+    "familyId": "family-pr-135",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "fixture-japanese-explicit-rationale",
@@ -208,7 +214,9 @@
         "ドラフトリリースを後から公開する運用でも、公開時に変更履歴 PR を作れるようにするため。"
       ]
     },
-    "expectedSelectedCandidateIndex": 0
+    "expectedSelectedCandidateIndex": 0,
+    "familyId": "family-japanese-draft-release",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "fixture-unrelated-explicit-rationale",
@@ -258,7 +266,9 @@
         "Normalize CRLF line endings at the file-read boundary so contract tests pass reliably across Windows and Unix checkouts."
       ]
     },
-    "expectedSelectedCandidateIndex": 1
+    "expectedSelectedCandidateIndex": 1,
+    "familyId": "family-pr-210",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "pr-211-evaluation-artifacts-rationale",
@@ -276,7 +286,9 @@
         "Persist structured benchmark reports and human-readable summaries so engine comparisons are reproducible across commits without relying on transient console logs."
       ]
     },
-    "expectedSelectedCandidateIndex": 1
+    "expectedSelectedCandidateIndex": 1,
+    "familyId": "family-pr-211",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "fixture-rate-limit-backoff-rationale",
@@ -292,7 +304,9 @@
         "Large repositories generate burst requests that trigger HTTP 429 throttling from LLM endpoints during changelog generation."
       ]
     },
-    "expectedSelectedCandidateIndex": 0
+    "expectedSelectedCandidateIndex": 0,
+    "familyId": "family-rate-limit-backoff",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "fixture-memory-leak-cleanup-rationale",
@@ -324,7 +338,9 @@
         "Unbounded repetition in the release heading parser caused quadratic parsing times and potential ReDoS vulnerabilities on adversarial changelogs."
       ]
     },
-    "expectedSelectedCandidateIndex": 0
+    "expectedSelectedCandidateIndex": 0,
+    "familyId": "family-redos-regex",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "fixture-linear-scan-optimization-rationale",
@@ -340,7 +356,9 @@
         "Repositories with thousands of closed PRs experienced multi-second freezes during link reconciliation due to nested array searches."
       ]
     },
-    "expectedSelectedCandidateIndex": 0
+    "expectedSelectedCandidateIndex": 0,
+    "familyId": "family-linear-scan",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "fixture-semantic-commit-parser-rationale",
@@ -420,7 +438,9 @@
         "Malicious configuration files could specify relative traversal sequences (../../) to write changelog files outside the repository root."
       ]
     },
-    "expectedSelectedCandidateIndex": 0
+    "expectedSelectedCandidateIndex": 0,
+    "familyId": "family-path-sanitization",
+    "counterfactualRole": "anchor-positive"
   },
   {
     "id": "fixture-git-tag-prefix-strip-rationale",
@@ -814,6 +834,382 @@
       "requiresHighConfidence": false,
       "candidates": [
         "デバッグ用のコメントアウトコードと不要なログ出力を削除しました。"
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-203-counterfactual-unrelated-rationale",
+    "sourcePullRequest": 203,
+    "familyId": "family-pr-203",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90101,
+      "title": "feat(why): add experimental Jev Noul selection engine",
+      "itemText": "Add experimental Jev Noul selection engine",
+      "sectionTitle": "Added",
+      "trustScore": 10,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Normalizing CRLF line endings prevents contract tests from failing on Windows checkouts."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-203-counterfactual-missing-reason",
+    "sourcePullRequest": 203,
+    "familyId": "family-pr-203",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90102,
+      "title": "feat(why): add experimental Jev Noul selection engine",
+      "itemText": "Add experimental Jev Noul selection engine",
+      "sectionTitle": "Added",
+      "trustScore": 10,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Implement JevWhyExtractor class, register provider factory option, and export selection types."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-185-counterfactual-unrelated-rationale",
+    "sourcePullRequest": 185,
+    "familyId": "family-pr-185",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90103,
+      "title": "refactor: separate changelog run phase",
+      "itemText": "Separate changelog run phase",
+      "sectionTitle": "Changed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Separate changelog execution into input-resolution and output-finalization phases.",
+        "Unbounded repetition in the markdown heading regex caused catastrophic backtracking on large release notes."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-185-counterfactual-missing-reason",
+    "sourcePullRequest": 185,
+    "familyId": "family-pr-185",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90104,
+      "title": "refactor: separate changelog run phase",
+      "itemText": "Separate changelog run phase",
+      "sectionTitle": "Changed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Separate changelog execution into input-resolution and output-finalization phases.",
+        "Split executeChangelogRun into resolveChangelogRunInput and finalizeChangelogRunOutput functions."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-135-counterfactual-unrelated-rationale",
+    "sourcePullRequest": 135,
+    "familyId": "family-pr-135",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90105,
+      "title": "Make PR labeling permission optional",
+      "itemText": "Make PR labeling permission optional",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Truncating oversized diff summaries avoids exceeding provider context window limits."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-135-counterfactual-missing-reason",
+    "sourcePullRequest": 135,
+    "familyId": "family-pr-135",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90106,
+      "title": "Make PR labeling permission optional",
+      "itemText": "Make PR labeling permission optional",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Wrap the octokit.rest.issues.addLabels call in a try-catch block and log a warning on failure."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-210-counterfactual-unrelated-rationale",
+    "sourcePullRequest": 210,
+    "familyId": "family-pr-210",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90107,
+      "title": "fix(dx): support Windows development, cross-platform test runner, and normalize CRLF in contract tests",
+      "itemText": "Support Windows development, cross-platform test runner, and normalize CRLF in contract tests",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Update test script to execute node with experimental-vm-modules directly instead of POSIX NODE_OPTIONS syntax.",
+        "Exponential backoff reduces HTTP 429 rate-limit failures when burst requests hit LLM endpoints."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-210-counterfactual-missing-reason",
+    "sourcePullRequest": 210,
+    "familyId": "family-pr-210",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90108,
+      "title": "fix(dx): support Windows development, cross-platform test runner, and normalize CRLF in contract tests",
+      "itemText": "Support Windows development, cross-platform test runner, and normalize CRLF in contract tests",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Update test script to execute node with experimental-vm-modules directly instead of POSIX NODE_OPTIONS syntax.",
+        "Replace raw string comparisons in test helpers and update test runner scripts."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-211-counterfactual-unrelated-rationale",
+    "sourcePullRequest": 211,
+    "familyId": "family-pr-211",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90109,
+      "title": "test(why): persist reproducible evaluation artifacts",
+      "itemText": "Persist reproducible evaluation artifacts",
+      "sectionTitle": "Added",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Extend run-why-evaluation to support repeated runs and configurable output directory.",
+        "Sanitizing output file paths prevents directory traversal attacks from untrusted configuration files."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "pr-211-counterfactual-missing-reason",
+    "sourcePullRequest": 211,
+    "familyId": "family-pr-211",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90110,
+      "title": "test(why): persist reproducible evaluation artifacts",
+      "itemText": "Persist reproducible evaluation artifacts",
+      "sectionTitle": "Added",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Extend run-why-evaluation to support repeated runs and configurable output directory.",
+        "Create src/evaluation/why-evaluation-artifacts.ts with writeFileSync helpers for JSON and Markdown."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-rate-limit-backoff-counterfactual-unrelated-rationale",
+    "familyId": "family-rate-limit-backoff",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90111,
+      "title": "fix(llm): add exponential backoff for rate-limited requests",
+      "itemText": "Add exponential backoff for rate-limited requests",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Preserving custom user notes in the Unreleased section ensures manual edits are not overwritten during releases."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-rate-limit-backoff-counterfactual-missing-reason",
+    "familyId": "family-rate-limit-backoff",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90112,
+      "title": "fix(llm): add exponential backoff for rate-limited requests",
+      "itemText": "Add exponential backoff for rate-limited requests",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Add retry loop with setTimeout delay multiplier in src/utils/http.ts."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-redos-regex-counterfactual-unrelated-rationale",
+    "familyId": "family-redos-regex",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90113,
+      "title": "security: avoid catastrophic backtracking in release heading regex",
+      "itemText": "Avoid catastrophic backtracking in release heading regex",
+      "sectionTitle": "Fixed",
+      "trustScore": 10,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Returning a zero exit code on dry-run completion prevents CI workflows from marking preview runs as failed."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-redos-regex-counterfactual-missing-reason",
+    "familyId": "family-redos-regex",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90114,
+      "title": "security: avoid catastrophic backtracking in release heading regex",
+      "itemText": "Avoid catastrophic backtracking in release heading regex",
+      "sectionTitle": "Fixed",
+      "trustScore": 10,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Replace nested quantifiers in HEADING_RE with a linear character class match."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-linear-scan-counterfactual-unrelated-rationale",
+    "familyId": "family-linear-scan",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90115,
+      "title": "perf: replace O(N^2) PR reference lookup with Map",
+      "itemText": "Replace O(N^2) PR reference lookup with Map",
+      "sectionTitle": "Changed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Handling release tags with or without a leading v prefix avoids duplicate compare links."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-linear-scan-counterfactual-missing-reason",
+    "familyId": "family-linear-scan",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90116,
+      "title": "perf: replace O(N^2) PR reference lookup with Map",
+      "itemText": "Replace O(N^2) PR reference lookup with Map",
+      "sectionTitle": "Changed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Change array.find lookup inside mapCommitsToPrs to new Map() keyed by SHA."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-path-sanitization-counterfactual-unrelated-rationale",
+    "familyId": "family-path-sanitization",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90117,
+      "title": "security: sanitize output changelog file path",
+      "itemText": "Sanitize output changelog file path",
+      "sectionTitle": "Fixed",
+      "trustScore": 10,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Parsing breaking changes footers ensures major version bumps are highlighted at the top of the changelog."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-path-sanitization-counterfactual-missing-reason",
+    "familyId": "family-path-sanitization",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90118,
+      "title": "security: sanitize output changelog file path",
+      "itemText": "Sanitize output changelog file path",
+      "sectionTitle": "Fixed",
+      "trustScore": 10,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "Call path.resolve and verify prefix startsWith(process.cwd()) in src/lib/changelog-file.ts."
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-japanese-draft-release-counterfactual-unrelated-rationale",
+    "familyId": "family-japanese-draft-release",
+    "counterfactualRole": "unrelated-rationale",
+    "item": {
+      "prNumber": 90119,
+      "title": "ドラフトリリースの公開処理を修正",
+      "itemText": "ドラフトリリースの公開処理を修正",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "APIレート制限による429エラーを回避し、大規模リポジトリでも安定して変更履歴を生成できるようにするため。"
+      ]
+    },
+    "expectedSelectedCandidateIndex": null
+  },
+  {
+    "id": "fixture-japanese-draft-release-counterfactual-missing-reason",
+    "familyId": "family-japanese-draft-release",
+    "counterfactualRole": "missing-reason",
+    "item": {
+      "prNumber": 90120,
+      "title": "ドラフトリリースの公開処理を修正",
+      "itemText": "ドラフトリリースの公開処理を修正",
+      "sectionTitle": "Fixed",
+      "trustScore": 9,
+      "trustBucket": "high",
+      "requiresHighConfidence": false,
+      "candidates": [
+        "リリース公開イベントのハンドラを更新し、ペイロードのパース処理を変更した。"
       ]
     },
     "expectedSelectedCandidateIndex": null

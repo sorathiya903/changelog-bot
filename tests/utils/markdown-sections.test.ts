@@ -45,4 +45,52 @@ describe('markdown-sections utils', () => {
       '',
     ]);
   });
+
+  test('deduplicates a bullet repeated within the incoming batch', () => {
+    const document = splitMarkdownSections('### Added\n');
+    const [section] = document.sections;
+
+    appendUniqueBulletLines(section, ['- Add feature', '- Add feature']);
+
+    expect(section.lines).toEqual(['', '- Add feature', '']);
+  });
+
+  test('skips a bullet already in the section even when duplicated in the batch', () => {
+    const document = splitMarkdownSections(
+      ['### Added', '', '- Add feature', ''].join('\n'),
+    );
+    const [section] = document.sections;
+
+    appendUniqueBulletLines(section, [
+      '- Add feature',
+      '- Add feature',
+      '- Fix bug',
+    ]);
+
+    expect(section.lines).toEqual(['', '- Add feature', '- Fix bug', '']);
+  });
+
+  test('preserves the original order of incoming bullets after deduplication', () => {
+    const document = splitMarkdownSections('### Added\n');
+    const [section] = document.sections;
+
+    appendUniqueBulletLines(section, [
+      '- Third',
+      '- First',
+      '- Third',
+      '- Second',
+      '- First',
+    ]);
+
+    expect(section.lines).toEqual(['', '- Third', '- First', '- Second', '']);
+  });
+
+  test('compares incoming bullets using their trimmed text', () => {
+    const document = splitMarkdownSections('### Added\n');
+    const [section] = document.sections;
+
+    appendUniqueBulletLines(section, ['- Add feature', '  - Add feature  ']);
+
+    expect(section.lines).toEqual(['', '- Add feature', '']);
+  });
 });

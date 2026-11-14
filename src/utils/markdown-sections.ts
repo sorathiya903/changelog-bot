@@ -85,14 +85,20 @@ export function appendUniqueBulletLines(
 ): void {
   if (!bullets.length) return;
 
-  const existingBullets = new Set(
+  // WHY: Seed the set with existing bullets and grow it while filtering so
+  // duplicates within the incoming batch are also dropped, not just ones
+  // already present in the section.
+  const seenBullets = new Set(
     section.lines
       .filter((line) => BULLET_PREFIX_RE.test(line))
       .map((line) => line.trim()),
   );
-  const uniqueBullets = bullets.filter(
-    (line) => !existingBullets.has(line.trim()),
-  );
+  const uniqueBullets = bullets.filter((line) => {
+    const trimmed = line.trim();
+    if (seenBullets.has(trimmed)) return false;
+    seenBullets.add(trimmed);
+    return true;
+  });
   if (!uniqueBullets.length) return;
 
   if (!hasMeaningfulMarkdownContent(section.lines)) {

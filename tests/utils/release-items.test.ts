@@ -65,6 +65,27 @@ describe('release-items identity and helpers', () => {
 });
 
 describe('buildReleaseItemsFromPullRequests with sub-changes', () => {
+  test('uses the first associated pull request with a non-empty title', () => {
+    const items = buildReleaseItemsFromPullRequests(
+      [{ sha: 'c1', subject: 'feat: add a feature' }],
+      {
+        c1: [
+          { number: 41, title: '   ' },
+          { number: 42, title: 'feat: first titled pull request' },
+          { number: 43, title: 'feat: later titled pull request' },
+        ],
+      },
+    );
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      id: 'pr:42',
+      origin: { kind: 'pull-request', number: 42 },
+      title: 'first titled pull request',
+      pr: 42,
+    });
+  });
+
   test('creates individual sub-changes when a PR contains multiple distinct user-facing commits', () => {
     const excludedChanges: ExcludedReleaseChange[] = [];
     const items = buildReleaseItemsFromPullRequests(

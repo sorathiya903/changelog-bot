@@ -88,26 +88,45 @@ describe('evaluateWhySelections', () => {
       precision: 1 / 3,
       recall: 1,
       f1: 0.5,
+      decisionTruePositives: 1,
+      decisionPrecision: 1 / 3,
+      decisionRecall: 1,
+      decisionF1: 0.5,
       exactCandidatePreservations: 1,
       exactCandidatePreservationRate: 1,
       unexpectedSelections: 1,
       duplicateSelections: 0,
+      wrongCandidateSelections: 0,
+      unanchoredSelections: 0,
+      wrongChangeAcceptances: 0,
+      wrongChangeRejections: 0,
+      wrongChangeAcceptanceRate: null,
+      missingReasonRejections: 0,
+      missingReasonRejectionRate: null,
       outcomes: [
         {
           id: 'positive',
           prNumber: 1,
+          familyId: undefined,
+          counterfactualRole: undefined,
           expectedSelectedCandidateIndex: 0,
           selected: true,
           selectedCandidateIndex: 0,
           preservesExpectedCandidate: true,
+          isWrongCandidate: false,
+          isUnanchored: false,
         },
         {
           id: 'negative',
           prNumber: 2,
+          familyId: undefined,
+          counterfactualRole: undefined,
           expectedSelectedCandidateIndex: null,
           selected: true,
           selectedCandidateIndex: 0,
           preservesExpectedCandidate: false,
+          isWrongCandidate: true,
+          isUnanchored: false,
         },
       ],
     });
@@ -280,6 +299,256 @@ describe('evaluateWhySelections', () => {
     expect(metrics.thresholds[0]).toEqual(
       expect.objectContaining({ truePositives: 1, falsePositives: 0 }),
     );
+  });
+
+  test('discriminates selecting an explicitly wrong candidate as a false positive and miss (#237)', () => {
+    const wrongCandidateCase: WhyEvaluationCase = {
+      id: 'pr-10-wrong-candidate',
+      item: {
+        prNumber: 10,
+        title: 'Fix issue',
+        itemText: 'Fix issue',
+        sectionTitle: 'Fixed',
+        trustScore: 9,
+        trustBucket: 'high',
+        requiresHighConfidence: false,
+        candidates: [
+          'Correct rationale for fixing the bug.',
+          'Unrelated rationale belonging to another change.',
+        ],
+      },
+      expectedSelectedCandidateIndex: 0,
+    };
+
+    const metrics = evaluateWhySelections(
+      [wrongCandidateCase],
+      [
+        {
+          prNumber: 10,
+          why: 'Unrelated rationale belonging to another change.',
+          confidence: 'high',
+        },
+      ],
+    );
+
+    expect(metrics.truePositives).toBe(0);
+    expect(metrics.falsePositives).toBe(1);
+    expect(metrics.falseNegatives).toBe(1);
+    expect(metrics.wrongCandidateSelections).toBe(1);
+    expect(metrics.exactCandidatePreservations).toBe(0);
+    expect(metrics.precision).toBe(0);
+    expect(metrics.recall).toBe(0);
+    expect(metrics.f1).toBeNull();
+    expect(metrics.outcomes[0]).toEqual(
+      expect.objectContaining({
+        prNumber: 10,
+        selected: true,
+        selectedCandidateIndex: 1,
+        preservesExpectedCandidate: false,
+        isWrongCandidate: true,
+        isUnanchored: false,
+      }),
+    );
+  });
+
+  test('does not count unanchored or incorrect paraphrase as confirmed TP by default and separates decision metrics (#237)', () => {
+    const caseItem: WhyEvaluationCase = {
+      id: 'pr-20-paraphrased',
+      item: {
+        prNumber: 20,
+        title: 'Enhance cache performance',
+        itemText: 'Enhance cache performance',
+        sectionTitle: 'Changed',
+        trustScore: 9,
+        trustBucket: 'high',
+        requiresHighConfidence: false,
+        candidates: [
+          'The cache prevents expensive recalculation on every request.',
+        ],
+      },
+      expectedSelectedCandidateIndex: 0,
+    };
+
+    // Unanchored note paraphrasing an unrelated rationale (e.g. authentication security instead of caching)
+    const incorrectParaphraseOutput = [
+      {
+        prNumber: 20,
+        why: 'Improves authentication security by rotating session tokens.',
+        confidence: 'high' as const,
+      },
+    ];
+
+    // Default (strict): unverified unanchored prose must NOT inflate evidence precision
+    const strictMetrics = evaluateWhySelections(
+      [caseItem],
+      incorrectParaphraseOutput,
+    );
+    expect(strictMetrics.truePositives).toBe(0);
+    expect(strictMetrics.falsePositives).toBe(1);
+    expect(strictMetrics.falseNegatives).toBe(1);
+    expect(strictMetrics.precision).toBe(0);
+    expect(strictMetrics.recall).toBe(0);
+    expect(strictMetrics.exactCandidatePreservations).toBe(0);
+    expect(strictMetrics.unanchoredSelections).toBe(1);
+    expect(strictMetrics.decisionTruePositives).toBe(1);
+    expect(strictMetrics.decisionPrecision).toBe(1);
+    expect(strictMetrics.outcomes[0]?.isUnanchored).toBe(true);
+    expect(strictMetrics.outcomes[0]?.isWrongCandidate).toBe(false);
+
+    // Explicit opt-in for paraphrased evidence
+    const permissiveMetrics = evaluateWhySelections(
+      [caseItem],
+      incorrectParaphraseOutput,
+      { allowParaphrasedEvidence: true },
+    );
+    expect(permissiveMetrics.truePositives).toBe(1);
+    expect(permissiveMetrics.falsePositives).toBe(0);
+    expect(permissiveMetrics.falseNegatives).toBe(0);
+    expect(permissiveMetrics.precision).toBe(1);
+    expect(permissiveMetrics.exactCandidatePreservations).toBe(0);
+    expect(permissiveMetrics.unanchoredSelections).toBe(1);
+  });
+
+  test('counts incorrectly accepted missing-reason cases as false positives with 0% rejection rate (#237)', () => {
+    const missingReasonCase: WhyEvaluationCase = {
+      id: 'cf-missing-reason-accepted',
+      familyId: 'family-missing',
+      counterfactualRole: 'missing-reason',
+      item: {
+        prNumber: 105,
+        title: 'Refactor helper module',
+        itemText: 'Refactor helper module',
+        sectionTitle: 'Changed',
+        trustScore: 7,
+        trustBucket: 'medium',
+        requiresHighConfidence: false,
+        candidates: ['Extract shared helper into src/utils/format.ts.'],
+      },
+      expectedSelectedCandidateIndex: null,
+    };
+
+    const metrics = evaluateWhySelections(
+      [missingReasonCase],
+      [
+        {
+          prNumber: 105,
+          why: 'Extract shared helper into src/utils/format.ts.',
+          confidence: 'medium',
+        },
+      ],
+    );
+
+    expect(metrics.falsePositives).toBe(1);
+    expect(metrics.missingReasonRejections).toBe(0);
+    expect(metrics.missingReasonRejectionRate).toBe(0);
+  });
+
+  test('tracks counterfactual rejection metrics and returns null when denominators are zero (#237)', () => {
+    const counterfactualCases: WhyEvaluationCase[] = [
+      {
+        id: 'cf-anchor-positive',
+        familyId: 'family-1',
+        counterfactualRole: 'anchor-positive',
+        item: {
+          prNumber: 101,
+          title: 'Add feature',
+          itemText: 'Add feature',
+          sectionTitle: 'Added',
+          trustScore: 9,
+          trustBucket: 'high',
+          requiresHighConfidence: false,
+          candidates: ['Explicit valid rationale.'],
+        },
+        expectedSelectedCandidateIndex: 0,
+      },
+      {
+        id: 'cf-unrelated-accepted',
+        familyId: 'family-1',
+        counterfactualRole: 'unrelated-rationale',
+        item: {
+          prNumber: 102,
+          title: 'Add feature',
+          itemText: 'Add feature',
+          sectionTitle: 'Added',
+          trustScore: 9,
+          trustBucket: 'high',
+          requiresHighConfidence: false,
+          candidates: ['Unrelated rationale from another component.'],
+        },
+        expectedSelectedCandidateIndex: null,
+      },
+      {
+        id: 'cf-unrelated-rejected',
+        familyId: 'family-2',
+        counterfactualRole: 'unrelated-rationale',
+        item: {
+          prNumber: 103,
+          title: 'Fix issue',
+          itemText: 'Fix issue',
+          sectionTitle: 'Fixed',
+          trustScore: 9,
+          trustBucket: 'high',
+          requiresHighConfidence: false,
+          candidates: ['Another unrelated rationale.'],
+        },
+        expectedSelectedCandidateIndex: null,
+      },
+      {
+        id: 'cf-missing-reason-rejected',
+        familyId: 'family-1',
+        counterfactualRole: 'missing-reason',
+        item: {
+          prNumber: 104,
+          title: 'Add feature',
+          itemText: 'Add feature',
+          sectionTitle: 'Added',
+          trustScore: 7,
+          trustBucket: 'medium',
+          requiresHighConfidence: false,
+          candidates: ['Update function signature and export interface.'],
+        },
+        expectedSelectedCandidateIndex: null,
+      },
+    ];
+
+    // Predictions: accepts 101 (correct TP) and 102 (wrong-change FP), correctly rejects 103 and 104
+    const metrics = evaluateWhySelections(counterfactualCases, [
+      { prNumber: 101, why: 'Explicit valid rationale.', confidence: 'high' },
+      {
+        prNumber: 102,
+        why: 'Unrelated rationale from another component.',
+        confidence: 'high',
+      },
+    ]);
+
+    expect(metrics.wrongChangeAcceptances).toBe(1);
+    expect(metrics.wrongChangeRejections).toBe(1);
+    expect(metrics.wrongChangeAcceptanceRate).toBe(0.5); // 1 / 2 = 50%
+    expect(metrics.missingReasonRejections).toBe(1);
+    expect(metrics.missingReasonRejectionRate).toBe(1.0); // 1 / 1 = 100%
+
+    // Verify null rate when relevant cases are 0
+    const baselineCasesOnly: WhyEvaluationCase[] = [
+      {
+        id: 'baseline-positive',
+        item: {
+          prNumber: 201,
+          title: 'Title',
+          itemText: 'Title',
+          sectionTitle: 'Added',
+          trustScore: 9,
+          trustBucket: 'high',
+          requiresHighConfidence: false,
+          candidates: ['Rationale'],
+        },
+        expectedSelectedCandidateIndex: 0,
+      },
+    ];
+    const baselineMetrics = evaluateWhySelections(baselineCasesOnly, [
+      { prNumber: 201, why: 'Rationale', confidence: 'high' },
+    ]);
+    expect(baselineMetrics.wrongChangeAcceptanceRate).toBeNull();
+    expect(baselineMetrics.missingReasonRejectionRate).toBeNull();
   });
 });
 
