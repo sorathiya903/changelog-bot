@@ -78,11 +78,11 @@ Using it in CI? Jump to [GitHub Actions integration](#github-actions-integration
 
 ### Choose a Changelog audience
 
-Use `—-audience` to control which categories appear in the generated changelog.
+Use `--audience` to control which categories appear in the generated changelog.
 
 
 ```
-# Generate a user-facing changelog**
+# Generate a user-facing changelog
 
 pnpm dlx @nyaomaru/changelog-bot \
   --release-tag HEAD \
