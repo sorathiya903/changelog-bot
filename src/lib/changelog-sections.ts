@@ -108,7 +108,7 @@ export function replaceSection(
   const regExp = new RegExp(
     `^##\\s*\\[v${escapeRegExp(
       version,
-    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|\\s*$)`,
+    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|(?![\\s\\S]))`,
     'm',
   );
   if (!regExp.test(content)) return content;
@@ -128,7 +128,7 @@ export function removeAllSections(content: string, version: string): string {
   const regExp = new RegExp(
     `^##\\s*\\[v${escapeRegExp(
       version,
-    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|\\s*$)`,
+    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|(?![\\s\\S]))`,
     'gm',
   );
   return content
