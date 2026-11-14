@@ -91,22 +91,13 @@ export function hasSection(content: string, version: string): boolean {
 }
 
 /**
- * Replace a specific version section with new content.
- * Section is matched from the heading line until the next version heading or end.
- * @param content Changelog text to modify.
- * @param version Version (no leading "v").
- * @param newSection Replacement section text; outer blank lines are trimmed.
- * @returns Updated changelog with the target section replaced.
- */
-/**
  * Find the end of a version section without consuming its separator
  * or any following version compare-link definitions.
  */
 function findVersionSectionEnd(content: string, startIndex: number): number {
   // A section ends before the next version heading, a version reference
   // definition, or the end of the document.
-  const boundaryRegExp = /^(?:##\s*\[|\[v[^\]]+\]:)/gm;
-  boundaryRegExp.lastIndex = startIndex;
+  const boundaryRegExp = /^(?:##\s*\[v[^\]]+\]|\[v[^\]]+\]:)/gm;  boundaryRegExp.lastIndex = startIndex;
 
   const boundaryMatch = boundaryRegExp.exec(content);
   let endIndex = boundaryMatch?.index ?? content.length;
