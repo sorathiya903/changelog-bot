@@ -98,41 +98,84 @@ export function hasSection(content: string, version: string): boolean {
  * @param newSection Replacement section text; outer blank lines are trimmed.
  * @returns Updated changelog with the target section replaced.
  */
+/**
+ * Find the end of a version section without consuming its separator
+ * or any following version compare-link definitions.
+ */
+function findVersionSectionEnd(content: string, startIndex: number): number {
+  // A section ends before the next version heading, a version reference
+  // definition, or the end of the document.
+  const boundaryRegExp = /^(?:##\s*\[|\[v[^\]]+\]:)/gm;
+  boundaryRegExp.lastIndex = startIndex;
+
+  const boundaryMatch = boundaryRegExp.exec(content);
+  let endIndex = boundaryMatch?.index ?? content.length;
+
+  // Leave all trailing line breaks in the original content. This preserves
+  // the separator when replacing or removing a section.
+  while (
+    endIndex > startIndex &&
+    (content[endIndex - 1] === '\n' || content[endIndex - 1] === '\r')
+  ) {
+    endIndex--;
+  }
+
+  return endIndex;
+}
+
+/**
+ * Find all occurrences of a version section.
+ */
+function findVersionSectionRanges(
+  content: string,
+  version: string,
+): Array<{ start: number; end: number }> {
+  const headingRegExp = new RegExp(
+    `^##\\s*\\[v${escapeRegExp(version)}\\][^\\r\\n]*`,
+    'gm',
+  );
+
+  const ranges: Array<{ start: number; end: number }> = [];
+  let match: RegExpExecArray | null;
+
+  while ((match = headingRegExp.exec(content)) !== null) {
+    const start = match.index;
+    const headingEnd = start + match[0].length;
+    const end = findVersionSectionEnd(content, headingEnd);
+
+    ranges.push({ start, end });
+  }
+
+  return ranges;
+}
+
 export function replaceSection(
   content: string,
   version: string,
   newSection: string,
 ): string {
-  // WHY: Consume the heading line to avoid zero-width matches that could
-  // repeatedly match the same position. Non-greedy until next heading or EOF.
-  const regExp = new RegExp(
-    `^##\\s*\\[v${escapeRegExp(
-      version,
-    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|(?![\\s\\S]))`,
-    'm',
+  const [range] = findVersionSectionRanges(content, version);
+
+  if (!range) return content;
+
+  return (
+    content.slice(0, range.start) +
+    newSection.trim() +
+    content.slice(range.end)
   );
-  if (!regExp.test(content)) return content;
-  return content.replace(regExp, newSection.trim());
 }
 
-/**
- * Remove all sections that match the given version.
- * Useful when a version appears multiple times and needs deduplication.
- * @param content Changelog text to modify.
- * @param version Version (no leading "v").
- * @returns Content with all matching sections removed and spacing normalized.
- */
 export function removeAllSections(content: string, version: string): string {
-  // WHY: Global removal with non-greedy section capture until the next heading
-  // or EOF; also collapses runs of blank lines afterwards for cleanliness.
-  const regExp = new RegExp(
-    `^##\\s*\\[v${escapeRegExp(
-      version,
-    )}\\][^\\n]*\\n[\\s\\S]*?(?=^##\\s*\\[|(?![\\s\\S]))`,
-    'gm',
-  );
-  return content
-    .replace(regExp, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trimStart();
+  const ranges = findVersionSectionRanges(content, version);
+
+  // Remove from the end so earlier character positions remain unchanged.
+  let result = content;
+
+  for (const range of ranges.reverse()) {
+    result =
+      result.slice(0, range.start) +
+      result.slice(range.end);
+  }
+
+  return result.replace(/\n{3,}/g, '\n\n').trimStart();
 }
