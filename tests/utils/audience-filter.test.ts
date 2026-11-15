@@ -6,7 +6,6 @@ import {
   SECTION_CHANGED,
   SECTION_CHORE,
   SECTION_FIXED,
-  SECTION_DOCUMENTATION,
 } from '@/constants/changelog.js';
 import {
   ReleaseValidationError,
