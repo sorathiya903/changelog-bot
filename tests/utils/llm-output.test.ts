@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { describe, expect, test, jest } from '@jest/globals';
-
+const { SECTION_CHORE } = await import('@/constants/changelog.js');
 // With ESM + ts-jest, mock modules before importing the SUT using unstable_mockModule.
 await jest.unstable_mockModule('@/utils/classify.js', () => ({
   classifyChanges: jest.fn(async () => ({
@@ -548,4 +548,59 @@ describe('llm-output', () => {
     expect(result.aiUsed).toBe(false);
     expect(result.outcome?.kind).toBe('no-changes');
   });
+test('filters maintainer-only categories for user audience', async () => {
+  const classifyChanges = jest.fn(async () => ({
+    assignments: {
+      'release-note:0': 'Added',
+      'release-note:1': SECTION_CHORE,
+    },
+    diagnostics: [],
+  }));
+
+  const result = await buildChangelogLlmOutput(
+    buildBaseParams({
+      releaseBody: [
+        "## What's Changed",
+        '- Add export support',
+        '- Update internal tooling',
+      ].join('\n'),
+      provider: { ...mockProvider, classifyChanges },
+      hasProviderKey: true,
+      audience: 'user',
+    }),
+  );
+
+  expect(result.llm.new_section_markdown).toContain('Add export support');
+  expect(result.llm.new_section_markdown).not.toContain(
+    'Update internal tooling',
+  );
+});
+
+  test('keeps maintainer-only categories with the default audience', async () => {
+  const classifyChanges = jest.fn(async () => ({
+    assignments: {
+      'release-note:0': 'Added',
+      'release-note:1': SECTION_CHORE,
+    },
+    diagnostics: [],
+  }));
+
+  const result = await buildChangelogLlmOutput(
+    buildBaseParams({
+      releaseBody: [
+        "## What's Changed",
+        '- Add export support',
+        '- Update internal tooling',
+      ].join('\n'),
+      provider: { ...mockProvider, classifyChanges },
+      hasProviderKey: true,
+    }),
+  );
+
+  expect(result.llm.new_section_markdown).toContain('Add export support');
+  expect(result.llm.new_section_markdown).toContain(
+    'Update internal tooling',
+  );
+});
+  
 });
