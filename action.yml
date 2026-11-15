@@ -42,6 +42,9 @@ inputs:
   output:
     description: 'Changelog delivery destination (pull-request|file|stdout)'
     required: false
+  audience:
+    description: 'Changelog audience (all|user)'
+    required: false
   npm-version:
     description: 'npm dist-tag or version range for @nyaomaru/changelog-bot'
     required: false
