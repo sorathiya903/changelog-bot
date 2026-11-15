@@ -60,6 +60,40 @@ describe('loadCliConfigFile', () => {
     }
   });
 
+  test('accepts a valid audience value', () => {
+    const cwd = mkdtempSync(join(tmpdir(), 'changelog-bot-'));
+
+    try {
+      writeFileSync(
+        join(cwd, 'changelog-bot.config.json'),
+        JSON.stringify({ audience: 'user' }),
+        'utf8',
+      );
+
+      expect(loadCliConfigFile(undefined, cwd)).toEqual({
+        audience: 'user',
+      });
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+   }
+  });
+
+  test('rejects an invalid audience value', () => {
+    const cwd = mkdtempSync(join(tmpdir(), 'changelog-bot-'));
+
+    try {
+      writeFileSync(
+        join(cwd, 'changelog-bot.config.json'),
+        JSON.stringify({ audience: 'invalid' }),
+        'utf8',
+      );
+
+      expect(() => loadCliConfigFile(undefined, cwd)).toThrow(ConfigError);
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    } 
+  });
+
   test('still rejects typos when $schema is present', () => {
     const cwd = mkdtempSync(join(tmpdir(), 'changelog-bot-'));
     try {
