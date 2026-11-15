@@ -122,6 +122,7 @@ runs:
         INPUT_RELEASE_NAME: ${{ inputs['release-name'] }}
         INPUT_RELEASE_BODY: ${{ inputs['release-body'] }}
         INPUT_LANGUAGE: ${{ inputs.language }}
+        INPUT_AUDIENCE: ${{ inputs.audience }}
         INPUT_INSTRUCTIONS: ${{ inputs.instructions }}
         INPUT_INSTRUCTIONS_FILE: ${{ inputs['instructions-file'] }}
         INPUT_OUTPUT: ${{ inputs.output }}
@@ -235,6 +236,9 @@ runs:
         fi
         if [ -n "${INPUT_WHY_LABEL:-}" ]; then
           CMD+=(--why-label "${INPUT_WHY_LABEL}")
+        fi
+        if [ -n "${INPUT_AUDIENCE:-}" ]; then
+          CMD+=(--audience "${INPUT_AUDIENCE}")
         fi
 
         echo "+ ${CMD[@]}"
