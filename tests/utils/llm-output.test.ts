@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { describe, expect, test, jest } from '@jest/globals';
-const { SECTION_CHORE } = await import('@/constants/changelog.js');
+import { SECTION_CHORE } from '@/constants/changelog.js';
 // With ESM + ts-jest, mock modules before importing the SUT using unstable_mockModule.
 await jest.unstable_mockModule('@/utils/classify.js', () => ({
   classifyChanges: jest.fn(async () => ({
