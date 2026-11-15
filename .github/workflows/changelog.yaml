@@ -29,6 +29,9 @@ on:
       language:
         required: false
         type: string
+      audience:
+        required: false
+        type: string
       instructions:
         required: false
         type: string
@@ -143,6 +146,7 @@ jobs:
           instructions: ${{ inputs.instructions }}
           instructions-file: ${{ inputs.instructions_file }}
           output: ${{ inputs.output }}
+          audience: ${{ inputs.audience }}
           npm-version: ${{ inputs.npm_version }}
           minimum-package-age-days: ${{ inputs.minimum_package_age_days }}
           dry-run: ${{ inputs.dry_run }}
